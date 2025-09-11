@@ -12,7 +12,6 @@
     document.body.classList.add('l1');
 
     const slots = new Map();
-    let isMuted = false; // Track mute state
 
     function nextEmptySlot() {
         for (let i = 1; i <= 6; i++) {
@@ -63,17 +62,11 @@
 
     function mountYouTube(slotEl, id) {
         const iframe = document.createElement('iframe');
-        iframe.allow = 'autoplay; encrypted-media';
+        iframe.allow = 'autoplay; encrypted-media; web-share; clipboard-write';
         iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=0&mute=1&playsinline=1';
+        iframe.allowFullscreen = 'allowFullscreen';
         slotEl.innerHTML = '';
         slotEl.appendChild(iframe);
-        return {
-            play() { iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*'); },
-            pause() { iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*'); },
-            mute() { iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'mute' }), '*'); },
-            unmute() { iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'unMute' }), '*'); },
-            destroy() { iframe.remove(); }
-        };
     }
 
     function mountTwitch(slotEl, channel) {
@@ -84,37 +77,23 @@
         slotEl.innerHTML = '';
         slotEl.appendChild(container);
         const player = new Twitch.Player(id, { width: '100%', height: '100%', channel, autoplay: false, muted: true, parent: [location.hostname], chat: false });
-        return {
-            play() { try { player.getPlayer().play(); } catch { } },
-            pause() { try { player.getPlayer().pause(); } catch { } },
-            mute() { try { player.getPlayer().setMuted(true); } catch { } },
-            unmute() { try { player.getPlayer().setMuted(false); } catch { } },
-            destroy() { container.remove(); }
-        };
     }
 
     function mountVKVideo(slotEl, params) {
         const iframe = document.createElement('iframe');
-        iframe.allow = 'autoplay; encrypted-media';
         let src;
         if (params.channel) {
             // For live.vkvideo.ru channels, we need to construct the embed URL
             // This might require additional API calls or different handling
-            src = 'https://live.vkvideo.ru/embed/' + params.channel + '?autoplay=true&muted=true';
+            src = 'https://live.vkvideo.ru/app/embed/' + params.channel + '?autoplay=false&muted=true&stream_btn=false';
         } else if (params.oid && params.id) {
             // For regular VK videos
-            src = 'https://vk.com/video_ext.php?oid=' + params.oid + '&id=' + params.id + '&autoplay=0&mute=1';
+            src = 'https://vk.com/video_ext.php?oid=' + params.oid + '&id=' + params.id + '&autoplay=0&muted=true&stream_btn=false';
         }
         iframe.src = src;
+        iframe.allowFullscreen = 'allowfullscreen';
         slotEl.innerHTML = '';
         slotEl.appendChild(iframe);
-        return {
-            play() { /* VK Video iframe doesn't support postMessage like YouTube */ },
-            pause() { /* VK Video iframe doesn't support postMessage like YouTube */ },
-            mute() { /* VK Video iframe doesn't support postMessage like YouTube */ },
-            unmute() { /* VK Video iframe doesn't support postMessage like YouTube */ },
-            destroy() { iframe.remove(); }
-        };
     }
 
     function addByUrl(url) {
@@ -140,24 +119,12 @@
         });
     }
 
-    function setMuted(muted) {
-        slots.forEach(({ api }) => { try { muted ? api.mute() : api.unmute(); } catch { } });
-    }
-    function setPlaying(playing) {
-        slots.forEach(({ api }) => { try { playing ? api.play() : api.pause(); } catch { } });
-    }
-
     // Events
     addBtn.addEventListener('click', () => { if (urlInput.value.trim()) addByUrl(urlInput.value.trim()); });
     clearInput.addEventListener('click', () => { urlInput.value = ''; urlInput.focus(); });
     urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { addBtn.click(); } });
     clearAllBtn.addEventListener('click', clearAll);
-    muteBtn.addEventListener('click', () => {
-        isMuted = !isMuted;
-        setMuted(isMuted);
-        muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
-    });
-    playPauseBtn.addEventListener('click', () => { setPlaying(false); setTimeout(() => setPlaying(true), 50); });
+
     layoutBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             document.body.classList.remove('l1', 'l2', 'l3');
