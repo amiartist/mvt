@@ -5,8 +5,6 @@
     const clearInput = document.getElementById('clearInput');
     const addBtn = document.getElementById('addBtn');
     const layoutBtns = document.querySelectorAll('.layout-btn');
-    const muteBtn = document.getElementById('muteBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
     const clearAllBtn = document.getElementById('clearAllBtn');
 
     document.body.classList.add('l1');
@@ -61,25 +59,48 @@
     }
 
     function mountYouTube(slotEl, id) {
+        let playerContent = slotEl.querySelector('.player-content');
+        if (!playerContent) {
+            playerContent = document.createElement('div');
+            playerContent.className = 'player-content';
+            slotEl.appendChild(playerContent);
+        }
+        playerContent.innerHTML = '';
         const iframe = document.createElement('iframe');
         iframe.allow = 'autoplay; encrypted-media; web-share; clipboard-write';
-        iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=0&mute=1&playsinline=1';
+        iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=0&mute=1&playsinline=1&rel=0';
         iframe.allowFullscreen = 'allowFullscreen';
-        slotEl.innerHTML = '';
-        slotEl.appendChild(iframe);
+        playerContent.appendChild(iframe);
+        slotEl.querySelector('.cell-bar').classList.add('active');
+        return iframe;
     }
 
     function mountTwitch(slotEl, channel) {
+        let playerContent = slotEl.querySelector('.player-content');
+        if (!playerContent) {
+            playerContent = document.createElement('div');
+            playerContent.className = 'player-content';
+            slotEl.appendChild(playerContent);
+        }
+        playerContent.innerHTML = '';
         const container = document.createElement('div');
         const id = 'tw-' + Math.random().toString(36).slice(2);
         container.id = id;
         container.className = 'twitch-embed';
-        slotEl.innerHTML = '';
-        slotEl.appendChild(container);
+        playerContent.appendChild(container);
         const player = new Twitch.Player(id, { width: '100%', height: '100%', channel, autoplay: false, muted: true, parent: [location.hostname], chat: false });
+        slotEl.querySelector('.cell-bar').classList.add('active');
+        return player;
     }
 
     function mountVKVideo(slotEl, params) {
+        let playerContent = slotEl.querySelector('.player-content');
+        if (!playerContent) {
+            playerContent = document.createElement('div');
+            playerContent.className = 'player-content';
+            slotEl.appendChild(playerContent);
+        }
+        playerContent.innerHTML = '';
         const iframe = document.createElement('iframe');
         let src;
         if (params.channel) {
@@ -92,8 +113,9 @@
         }
         iframe.src = src;
         iframe.allowFullscreen = 'allowfullscreen';
-        slotEl.innerHTML = '';
-        slotEl.appendChild(iframe);
+        playerContent.appendChild(iframe);
+        slotEl.querySelector('.cell-bar').classList.add('active');
+        return iframe;
     }
 
     function addByUrl(url) {
@@ -107,16 +129,82 @@
         if (parsed.type === 'twitch') api = mountTwitch(outer, parsed.channel);
         if (parsed.type === 'vkvideo') api = mountVKVideo(outer, parsed);
         slots.set(slotNum, { type: parsed.type, api });
+        const cellName = outer.querySelector('.cell-name');
+        if (parsed.type === 'youtube') {
+            cellName.textContent = 'YouTube: ' + parsed.id;
+        } else if (parsed.type === 'twitch') {
+            cellName.textContent = 'Twitch: ' + parsed.channel;
+        } else if (parsed.type === 'vkvideo') {
+            cellName.textContent = 'VK: ' + (parsed.channel || (parsed.oid + '_' + parsed.id));
+        }
         urlInput.value = ''; // Очищаем поле ввода после успешного добавления
     }
 
+    function moveSlot(from, direction) {
+        const to = from + direction;
+        if (to < 1 || to > 6) return;
+        if (!slots.has(from)) return;
+        const fromData = slots.get(from);
+        let toData = null;
+        if (slots.has(to)) {
+            toData = slots.get(to);
+        }
+        slots.set(to, fromData);
+        if (toData) {
+            slots.set(from, toData);
+        } else {
+            slots.delete(from);
+        }
+        const fromCell = grid.querySelector('[data-slot="' + from + '"]');
+        const toCell = grid.querySelector('[data-slot="' + to + '"]');
+        let fromContent = fromCell.querySelector('.player-content');
+        if (!fromContent) {
+            fromContent = document.createElement('div');
+            fromContent.className = 'player-content';
+            fromCell.appendChild(fromContent);
+        }
+        let toContent = toCell.querySelector('.player-content');
+        if (!toContent) {
+            toContent = document.createElement('div');
+            toContent.className = 'player-content';
+            toCell.appendChild(toContent);
+        }
+        const tempHTML = fromContent.innerHTML;
+        fromContent.innerHTML = toContent.innerHTML;
+        toContent.innerHTML = tempHTML;
+        const fromBar = fromCell.querySelector('.cell-bar');
+        const toBar = toCell.querySelector('.cell-bar');
+        if (toData) {
+            fromBar.classList.add('active');
+            toBar.classList.add('active');
+        } else {
+            fromBar.classList.remove('active');
+            toBar.classList.add('active');
+        }
+        const fromName = fromCell.querySelector('.cell-name');
+        const toName = toCell.querySelector('.cell-name');
+        const tempName = fromName.textContent;
+        fromName.textContent = toName.textContent;
+        toName.textContent = tempName;
+    }
+
+    function removeSlot(slot) {
+        if (!slots.has(slot)) return;
+        const data = slots.get(slot);
+        try { if (data.api && typeof data.api.destroy === 'function') data.api.destroy(); } catch { }
+        slots.delete(slot);
+        const cell = grid.querySelector('[data-slot="' + slot + '"]');
+        const content = cell.querySelector('.player-content');
+        if (content) content.innerHTML = '';
+        const name = cell.querySelector('.cell-name');
+        name.textContent = '';
+        cell.querySelector('.cell-bar').classList.remove('active');
+    }
+
     function clearAll() {
-        slots.forEach((v, k) => { try { v.api.destroy(); } catch { } });
-        slots.clear();
-        grid.querySelectorAll('.cell').forEach(cell => {
-            const num = cell.getAttribute('data-slot');
-            cell.innerHTML = '<div class="placeholder">' + num + '</div>';
-        });
+        for (let i = 1; i <= 6; i++) {
+            removeSlot(i);
+        }
     }
 
     // Events
@@ -130,5 +218,27 @@
             document.body.classList.remove('l1', 'l2', 'l3');
             document.body.classList.add(btn.dataset.layout);
         });
+    });
+
+    document.querySelectorAll('.cell-btn-group button').forEach(btn => {
+        if (btn.textContent === '←') {
+            btn.addEventListener('click', () => {
+                const cell = btn.closest('.cell');
+                const slot = parseInt(cell.dataset.slot);
+                moveSlot(slot, -1);
+            });
+        } else if (btn.textContent === '→') {
+            btn.addEventListener('click', () => {
+                const cell = btn.closest('.cell');
+                const slot = parseInt(cell.dataset.slot);
+                moveSlot(slot, 1);
+            });
+        } else if (btn.textContent === 'Remove') {
+            btn.addEventListener('click', () => {
+                const cell = btn.closest('.cell');
+                const slot = parseInt(cell.dataset.slot);
+                removeSlot(slot);
+            });
+        }
     });
 })();
