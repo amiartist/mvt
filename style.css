@@ -125,6 +125,12 @@ body {
     opacity: 1;
 }
 
+.links a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .clear-btn {
     position: absolute;
     right: 4px;
@@ -321,3 +327,4 @@ body.l3 #grid {
         grid-template-rows: repeat(6, minmax(140px, 1fr))
     }
 }
+
