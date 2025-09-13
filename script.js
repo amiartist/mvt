@@ -215,6 +215,11 @@
 
     layoutBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+            // Remove active class from all layout buttons
+            layoutBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            btn.classList.add('active');
+            // Switch layout
             document.body.classList.remove('l1', 'l2', 'l3');
             document.body.classList.add(btn.dataset.layout);
         });
