@@ -114,6 +114,11 @@ body {
     align-items: center
 }
 
+.layout-btn.active {
+    border: 1px solid var(--accent);
+    cursor: default;
+}
+
 .donation-link {
     margin-right: 12px;
     color: var(--text);
@@ -164,7 +169,7 @@ body {
 .grid {
     display: grid;
     gap: 12px;
-    padding: 16px;
+    padding: 10px 30px;
     height: calc(100vh - 58px);
 }
 
@@ -259,11 +264,10 @@ body {
     background-color: var(--alert);
 }
 
-
 /* Layouts */
 body.l1 #grid {
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 40% 40%;
+    grid-template-rows: 50% 50%;
     grid-template-areas:
         "s1 s2 s3"
         "s4 s5 s6"
@@ -271,7 +275,7 @@ body.l1 #grid {
 
 body.l2 #grid {
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 30% 30% 30%;
+    grid-template-rows: 35% 30% 30%;
     grid-template-areas:
         "s1 s1 s2 s2"
         "s1 s1 s2 s2"
@@ -313,8 +317,6 @@ body.l3 #grid {
 [data-slot="6"] {
     grid-area: s6
 }
-
-
 
 /* Responsive fallback */
 @media (max-width: 900px) {
