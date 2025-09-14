@@ -1,5 +1,19 @@
 // Basic multi-viewer for YouTube, Twitch & VK Video
 (function () {
+    // Cycling text in h1 span
+    const cyclingSpan = document.querySelector('.brand span');
+    const texts = ['YouTube', 'Twitch', 'VK Video Live'];
+    let currentIndex = 0;
+
+    function cycleText() {
+        cyclingSpan.textContent = texts[currentIndex];
+        currentIndex = (currentIndex + 1) % texts.length;
+    }
+
+    // Start cycling every 3 seconds
+    cycleText(); // Set initial text
+    setInterval(cycleText, 3000);
+
     const grid = document.getElementById('grid');
     const urlInput = document.getElementById('urlInput');
     const clearInput = document.getElementById('clearInput');
@@ -131,7 +145,7 @@
         slots.set(slotNum, { type: parsed.type, api });
         const cellName = outer.querySelector('.cell-name');
         if (parsed.type === 'youtube') {
-            cellName.textContent = 'YouTube: ' + parsed.id;
+            cellName.textContent = 'YouTube'; // + parsed.id
         } else if (parsed.type === 'twitch') {
             cellName.textContent = 'Twitch: ' + parsed.channel;
         } else if (parsed.type === 'vkvideo') {
