@@ -51,7 +51,14 @@ body {
 .brand {
     font-weight: 600;
     font-size: 22px;
-    letter-spacing: .5px
+    letter-spacing: .5px;
+    position: relative;
+}
+
+.brand span {
+    width: 100%;
+    position: absolute;
+    left: 185px;
 }
 
 .controls {
@@ -169,7 +176,7 @@ body {
 .grid {
     display: grid;
     gap: 12px;
-    padding: 10px 30px;
+    padding: 10px 16px;
     height: calc(100vh - 58px);
 }
 
@@ -248,7 +255,7 @@ body {
 }
 
 .cell-name {
-    /* color: var(--accent); */
+    text-transform: uppercase;
 }
 
 .cell-bar .btn {
@@ -263,6 +270,7 @@ body {
 .cell-bar .btn:last-child:hover {
     background-color: var(--alert);
 }
+
 
 /* Layouts */
 body.l1 #grid {
