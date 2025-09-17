@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Multi Viewer for YouTube, Twitch, VK Video Live</title>
-    <link rel="stylesheet" href="style.css"/>
+    <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -27,7 +27,7 @@
                 <button class="btn layout-btn" data-layout="l2">L2</button>
                 <button class="btn layout-btn" data-layout="l3">L3</button>
                 <button id="clearAllBtn" class="btn">Clear</button>
-                <!-- <button id="helpBtn" class="btn btn-icon" title="Help">?</button> -->
+                <button id="helpBtn" class="btn btn-icon" title="Help">?</button>
             </div>
         </div>
         <div class="links">
@@ -103,6 +103,27 @@
             </div>
         </div>
     </main>
+
+    <!-- Help Popup -->
+    <div id="helpPopup" class="popup-overlay">
+        <div class="popup-content">
+            <button id="closePopup" class="close-btn">&times;</button>
+            <h2>Инструкция по использованию</h2>
+            <p>Этот сайт позволяет просматривать несколько видеопотоков одновременно из YouTube, Twitch и VK Video Live.
+            </p>
+            <ul>
+                <li><strong>Добавление потока:</strong> Вставьте URL видеопотока в поле ввода и нажмите "Add" или
+                    Enter↲.
+                    Поддерживаются ссылки на YouTube (видео или прямые трансляции), Twitch (каналы) и VK Video Live.
+                </li>
+                <li><strong>Макеты:</strong> Используйте кнопки L1, L2, L3 для изменения раскладки плееров.</li>
+                <li><strong>Очистка:</strong> Кнопка "Clear" удаляет все потоки.</li>
+                <li><strong>Управление ячейками:</strong> После добавления видеоплеера, под ним появится блок управления
+                    ячейкой. Используйте стрелки для перемещения потока между ячейками, "Remove" для удаления.</li>
+                <li><strong>Поддержка:</strong> Если возникли проблемы или пожелания, свяжитесь через Telegram.</li>
+            </ul>
+        </div>
+    </div>
 
     <script src="https://player.twitch.tv/js/embed/v1.js"></script>
     <script src="script.js" defer></script>
