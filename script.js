@@ -260,4 +260,24 @@
             });
         }
     });
+
+    // Help popup functionality
+    const helpBtn = document.getElementById('helpBtn');
+    const helpPopup = document.getElementById('helpPopup');
+    const closePopup = document.getElementById('closePopup');
+
+    helpBtn.addEventListener('click', () => {
+        helpPopup.style.display = 'flex';
+    });
+
+    closePopup.addEventListener('click', () => {
+        helpPopup.style.display = 'none';
+    });
+
+    // Close popup when clicking outside
+    helpPopup.addEventListener('click', (e) => {
+        if (e.target === helpPopup) {
+            helpPopup.style.display = 'none';
+        }
+    });
 })();
